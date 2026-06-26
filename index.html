@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Consultorio · Recetas e Indicaciones</title>
+<style>
+  :root{
+    --azul:#1d3b53;
+    --azul-claro:#3d6c8f;
+    --crema:#f7f5f0;
+    --linea:#d8d2c4;
+    --tinta:#1a1a1a;
+    --acento:#a8442f;
+    --verde:#3a6e52;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Georgia', 'Times New Roman', serif;
+    background:var(--crema);
+    color:var(--tinta);
+  }
+  .app{max-width:880px;margin:0 auto;padding:24px 18px 80px;}
+  h1{
+    font-size:22px;letter-spacing:.5px;color:var(--azul);
+    margin:0 0 4px;font-weight:700;
+  }
+  .sub{color:#6b6457;font-size:13px;margin-bottom:18px;font-family:Arial,sans-serif;}
+  nav{
+    display:flex;gap:6px;border-bottom:2px solid var(--azul);margin-bottom:20px;
+    font-family:Arial,sans-serif;
+  }
+  nav button{
+    background:none;border:none;padding:10px 16px;font-size:14px;cursor:pointer;
+    color:#6b6457;border-radius:6px 6px 0 0;font-weight:600;
+  }
+  nav button.active{background:var(--azul);color:#fff;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .card{
+    background:#fff;border:1px solid var(--linea);border-radius:8px;
+    padding:18px;margin-bottom:16px;
+  }
+  label{display:block;font-size:12.5px;color:#665;margin-bottom:3px;font-family:Arial,sans-serif;font-weight:600;}
+  input[type=text],input[type=date],input[type=number],textarea,select{
+    width:100%;padding:8px 9px;border:1px solid #c9c2b3;border-radius:5px;
+    font-family:Arial,sans-serif;font-size:14px;margin-bottom:12px;background:#fffdf9;
+  }
+  textarea{resize:vertical;min-height:60px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .row > div{flex:1;min-width:140px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .btn{
+    font-family:Arial,sans-serif;font-weight:600;font-size:13.5px;
+    padding:9px 16px;border-radius:6px;border:none;cursor:pointer;
+  }
+  .btn-primary{background:var(--azul);color:#fff;}
+  .btn-primary:hover{background:var(--azul-claro);}
+  .btn-acento{background:var(--acento);color:#fff;}
+  .btn-ghost{background:#fff;border:1px solid var(--linea);color:var(--azul);}
+  .btn-sm{padding:5px 10px;font-size:12px;}
+  .btn-danger{background:#fff;border:1px solid #c0392b;color:#c0392b;}
+  .item-row{
+    display:flex;align-items:center;gap:10px;border:1px solid var(--linea);
+    border-radius:6px;padding:10px 12px;margin-bottom:8px;background:#fffdf9;
+    font-family:Arial,sans-serif;font-size:13.5px;
+  }
+  .item-row .info{flex:1;}
+  .item-row .info b{display:block;font-size:14px;color:var(--azul);}
+  .item-row .info span{color:#766f60;}
+  .section-title{
+    font-family:Arial,sans-serif;font-weight:700;color:var(--azul);
+    font-size:14px;margin:18px 0 8px;text-transform:uppercase;letter-spacing:.4px;
+    border-bottom:1px solid var(--linea);padding-bottom:4px;
+  }
+  .est-list{display:flex;flex-direction:column;gap:6px;}
+  .est-item{
+    display:flex;align-items:flex-start;gap:8px;font-family:Arial,sans-serif;
+    font-size:13.5px;padding:6px 0;border-bottom:1px dashed #e3ddcd;
+  }
+  .est-item label.lbl{flex:1;font-weight:400;color:var(--tinta);margin:0;cursor:pointer;}
+  .est-item input[type=checkbox]{margin-top:3px;}
+  .just-box{display:none;margin-top:6px;}
+  .est-item.checked .just-box{display:block;}
+  .presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+  .preset-btn{
+    font-family:Arial,sans-serif;font-size:12px;padding:5px 10px;border-radius:14px;
+    border:1px solid var(--azul-claro);background:#fff;color:var(--azul-claro);cursor:pointer;
+  }
+  .preset-btn:hover{background:var(--azul-claro);color:#fff;}
+  .logo-box{
+    border:2px dashed var(--linea);border-radius:8px;padding:14px;text-align:center;
+    font-family:Arial,sans-serif;color:#766f60;font-size:13px;
+  }
+  .logo-box img{max-height:70px;display:block;margin:0 auto 8px;}
+  .help{font-family:Arial,sans-serif;font-size:12px;color:#8a8270;margin-top:-6px;margin-bottom:10px;}
+  .footer-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px;}
+  .empty{font-family:Arial,sans-serif;color:#9b9484;font-size:13px;padding:10px 0;}
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--azul);color:#fff;padding:10px 18px;border-radius:6px;
+    font-family:Arial,sans-serif;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+
+  /* ---------- Impresión ---------- */
+  #printArea{display:none;}
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{
+      display:block;position:absolute;top:0;left:0;width:100%;
+      font-family:Georgia,serif;color:#000;
+    }
+    .pr-header{
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:2px solid #1d3b53;padding-bottom:10px;margin-bottom:16px;
+    }
+    .pr-header img{max-height:60px;}
+    .pr-inst{font-size:13px;color:#333;text-align:right;}
+    .pr-titulo{font-size:18px;font-weight:bold;color:#1d3b53;margin:14px 0 4px;}
+    .pr-fecha-pac{font-size:13px;margin-bottom:16px;display:flex;justify-content:space-between;}
+    .pr-med{border-bottom:1px solid #ccc;padding:10px 0;font-size:14.5px;}
+    .pr-med b{font-size:15.5px;}
+    .pr-est{padding:6px 0;font-size:14.5px;}
+    .pr-just{font-size:12.5px;color:#444;margin:4px 0 0 18px;font-style:italic;}
+    .pr-sello{
+      margin-top:60px;display:flex;justify-content:flex-end;
+    }
+    .pr-sello-box{
+      border-top:1px solid #555;padding-top:6px;width:280px;text-align:center;
+      font-size:12.5px;line-height:1.5;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Consultorio — Recetas e Indicaciones</h1>
+  <div class="sub" id="estado-guardado">Cargando datos guardados…</div>
+
+  <nav>
+    <button data-tab="config" class="active">Configuración</button>
+    <button data-tab="receta">Receta</button>
+    <button data-tab="estudios">Estudios</button>
+    <button data-tab="riesgo">Riesgo Qx</button>
+  </nav>
+
+  <!-- CONFIGURACIÓN -->
+  <div class="panel active" id="tab-config">
+    <div class="card">
+      <div class="section-title">Datos del profesional</div>
+      <div class="grid2">
+        <div><label>Nombre y apellido</label><input type="text" id="cfg-nombre" placeholder="Dr. Juan Pérez"></div>
+        <div><label>Especialidad(es)</label><input type="text" id="cfg-especialidad" placeholder="Médico Internista y Cardiólogo"></div>
+        <div><label>Matrícula Nacional (MN)</label><input type="text" id="cfg-mn" placeholder="MN 00000"></div>
+        <div><label>Matrícula Provincial (MP)</label><input type="text" id="cfg-mp" placeholder="MP 00000"></div>
+      </div>
+      <label style="margin-top:10px">Firma y sello (imagen)</label>
+      <input type="file" id="cfg-firma-input" accept="image/*">
+      <div class="logo-box" id="firma-preview">Sin firma/sello cargado. Subí una imagen (firma + datos + matrículas) para que se imprima al pie de recetas, estudios e informes.</div>
+    </div>
+    <div class="card">
+      <div class="section-title">Institución</div>
+      <div class="grid2">
+        <div><label>Nombre de la institución</label><input type="text" id="cfg-institucion" placeholder="Clínica / Sanatorio / Consultorio"></div>
+        <div>
+          <label>Logo de la institución</label>
+          <input type="file" id="cfg-logo-input" accept="image/*">
+        </div>
+      </div>
+      <div class="logo-box" id="logo-preview">Sin logo cargado. Subí una imagen para usarla como encabezado en las recetas.</div>
+    </div>
+    <div class="card">
+      <div class="section-title">Paciente actual</div>
+      <div class="help">Estos datos se usan tanto en la receta como en el pedido de estudios.</div>
+      <div class="grid2">
+        <div><label>Nombre del paciente</label><input type="text" id="pac-nombre" placeholder="Nombre y apellido"></div>
+        <div><label>DNI / Nº de historia</label><input type="text" id="pac-dni"></div>
+        <div><label>Fecha</label><input type="date" id="pac-fecha"></div>
+      </div>
+    </div>
+    <div class="footer-actions">
+      <button class="btn btn-primary" id="btn-guardar-config">Guardar datos</button>
+    </div>
+  </div>
+
+  <!-- RECETA -->
+  <div class="panel" id="tab-receta">
+    <div class="card">
+      <div class="section-title">Agregar medicamento</div>
+      <div class="row">
+        <div style="flex:2">
+          <label>Medicamento (vademecum AR — escribí para buscar, o ingresá uno nuevo)</label>
+          <input type="text" id="med-nombre" list="vademecum-list" placeholder="Ej: Enalapril">
+          <datalist id="vademecum-list"></datalist>
+        </div>
+        <div>
+          <label>Presentación</label>
+          <input type="text" id="med-presentacion" placeholder="Ej: 10mg x 30 comp.">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Cantidad de cajas</label>
+          <input type="number" id="med-cajas" min="1" value="1">
+        </div>
+        <div style="flex:2">
+          <label>Posología</label>
+          <input type="text" id="med-posologia" placeholder="Ej: 1 comprimido por día, vía oral">
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-add-med">+ Agregar a la receta</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Medicamentos en esta receta</div>
+      <div id="lista-meds"><div class="empty">Todavía no agregaste medicamentos.</div></div>
+      <div class="footer-actions">
+        <button class="btn btn-ghost" id="btn-clear-meds">Vaciar receta</button>
+        <button class="btn btn-ghost" id="btn-wsp-receta">Enviar por WhatsApp</button>
+        <button class="btn btn-ghost" id="btn-mail-receta">Enviar por correo</button>
+        <button class="btn btn-acento" id="btn-print-receta">Imprimir receta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTUDIOS -->
+  <div class="panel" id="tab-estudios">
+    <div class="card">
+      <div class="section-title">Estudios cardiológicos</div>
+      <div class="est-list" id="lista-cardio"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Laboratorio</div>
+      <div class="presets" id="lab-presets"></div>
+      <div class="est-list" id="lista-lab"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Otro estudio (no listado)</div>
+      <div class="row">
+        <div style="flex:2"><input type="text" id="otro-estudio-nombre" placeholder="Nombre del estudio"></div>
+        <div><button class="btn btn-ghost" id="btn-add-otro">+ Agregar</button></div>
+      </div>
+    </div>
+    <div class="footer-actions">
+      <button class="btn btn-ghost" id="btn-clear-estudios">Desmarcar todo</button>
+      <button class="btn btn-ghost" id="btn-wsp-estudios">Enviar por WhatsApp</button>
+      <button class="btn btn-ghost" id="btn-mail-estudios">Enviar por correo</button>
+      <button class="btn btn-acento" id="btn-print-estudios">Imprimir pedido de estudios</button>
+    </div>
+  </div>
+
+  <!-- RIESGO QUIRÚRGICO -->
+  <div class="panel" id="tab-riesgo">
+    <div class="card">
+      <div class="section-title">Datos generales</div>
+      <div class="grid2">
+        <div><label>Fecha</label><input type="date" id="rq-fecha"></div>
+        <div><label>Nombre del paciente</label><input type="text" id="rq-nombre"></div>
+        <div><label>DNI</label><input type="text" id="rq-dni"></div>
+        <div><label>Cirugía / procedimiento a realizar</label><input type="text" id="rq-cirugia" placeholder="Ej: Colecistectomía laparoscópica"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Factores de riesgo cardiovascular (Índice de Lee / RCRI)</div>
+      <div class="help">Marcá los antecedentes presentes. Cada ítem suma 1 punto al índice de riesgo cardíaco revisado (RCRI).</div>
+      <div class="est-list" id="lista-rcri"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Otros antecedentes y datos clínicos</div>
+      <label>Otros antecedentes</label>
+      <textarea id="rq-otros-antecedentes" placeholder="Ej: EPOC, obesidad, hipotiroidismo..."></textarea>
+      <label>Medicación habitual</label>
+      <textarea id="rq-medicacion"></textarea>
+      <label>Alergias</label>
+      <input type="text" id="rq-alergias">
+      <div class="grid2">
+        <div><label>ECG — fecha</label><input type="date" id="rq-ecg-fecha"></div>
+        <div><label>ECG — hallazgos</label><input type="text" id="rq-ecg-hallazgos" placeholder="Ritmo sinusal, sin alteraciones..."></div>
+      </div>
+      <label>Estudios complementarios</label>
+      <textarea id="rq-estudios-compl" placeholder="Ej: Ecocardiograma 03/2026: FEy 60%, sin valvulopatías..."></textarea>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Capacidad funcional</div>
+      <div class="est-list" id="lista-mets"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Tipo de cirugía (riesgo quirúrgico intrínseco — ESC/ESA)</div>
+      <div class="help">Riesgo de evento cardíaco a 30 días asociado al tipo de procedimiento.</div>
+      <div class="est-list" id="lista-tipocx"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Clasificación ASA</div>
+      <div class="est-list" id="lista-asa"></div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn btn-primary" id="btn-calcular-riesgo">Estimar riesgo</button>
+    </div>
+
+    <div class="card" id="resultado-riesgo" style="display:none">
+      <div class="section-title">Resultado de la estimación</div>
+      <div id="resultado-contenido" style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6"></div>
+      <div class="help" style="margin-top:10px">
+        Estimación orientativa basada en el Índice de Riesgo Cardíaco Revisado (Lee et al.), la clasificación ASA y el
+        algoritmo de evaluación cardíaca perioperatoria de las guías ESC/ESA 2022 y ACC/AHA 2014. No reemplaza el juicio clínico.
+      </div>
+      <div class="footer-actions">
+        <button class="btn btn-ghost" id="btn-wsp-riesgo">Enviar por WhatsApp</button>
+        <button class="btn btn-ghost" id="btn-mail-riesgo">Enviar por correo</button>
+        <button class="btn btn-acento" id="btn-print-riesgo">Imprimir informe</button>
+      </div>
+    </div>
+
+    <div class="card" id="informe-colega" style="display:none">
+      <div class="section-title">Informe para interconsulta / colega</div>
+      <div class="help">Versión narrativa, pensada para compartir con otro profesional (clínico, cirujano, anestesiólogo).</div>
+      <textarea id="informe-colega-texto" style="min-height:220px;font-family:Arial,sans-serif"></textarea>
+      <div class="footer-actions">
+        <button class="btn btn-ghost" id="btn-wsp-informe">Enviar por WhatsApp</button>
+        <button class="btn btn-ghost" id="btn-mail-informe">Enviar por correo</button>
+        <button class="btn btn-acento" id="btn-print-informe">Imprimir informe</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ÁREA DE IMPRESIÓN (se llena dinámicamente) -->
+<div id="printArea"></div>
+
+<script>
+/* ---------------- Vademécum (medicina interna / cardiología, Argentina) ---------------- */
+const VADEMECUM = [
+ "Enalapril","Losartán","Valsartán","Telmisartán","Olmesartán","Amlodipina",
+ "Atenolol","Bisoprolol","Carvedilol","Nebivolol","Metoprolol",
+ "Atorvastatina","Rosuvastatina","Simvastatina","Ezetimibe",
+ "Aspirina (AAS)","Clopidogrel","Warfarina","Acenocumarol","Rivaroxabán","Apixabán","Dabigatrán",
+ "Furosemida","Hidroclorotiazida","Espironolactona","Indapamida","Clortalidona",
+ "Digoxina","Amiodarona","Diltiazem","Verapamilo",
+ "Metformina","Glibenclamida","Sitagliptina","Empagliflozina","Dapagliflozina",
+ "Levotiroxina","Omeprazol","Pantoprazol","Paracetamol","Ibuprofeno","Diclofenac",
+ "Losartán/Hidroclorotiazida","Valsartán/Amlodipina","Sacubitrilo/Valsartán",
+ "Trimetazidina","Ivabradina","Nitroglicerina sublingual","Isosorbide dinitrato",
+ "Clonazepam","Alprazolam","Sertralina","Escitalopram"
+];
+const PRESENTACIONES_SUGERIDAS = {};
+
+/* ---------------- Estudios cardiológicos ---------------- */
+const ESTUDIOS_CARDIO = [
+ "Electrocardiograma (ECG)",
+ "Ecocardiograma Doppler color",
+ "Ergometría (prueba de esfuerzo)",
+ "Holter de ECG 24hs",
+ "MAPA (monitoreo ambulatorio de presión arterial)",
+ "Eco-estrés",
+ "Cámara gamma / SPECT cardíaco",
+ "Angiotomografía coronaria (AngioTAC)",
+ "Cinecoronariografía (cateterismo)",
+ "Doppler de vasos de cuello (carotídeo)",
+ "Doppler arterial / venoso de miembros inferiores",
+ "Resonancia magnética cardíaca"
+];
+/* Opciones adicionales por estudio (checkbox secundario que agrega texto al imprimir/enviar) */
+const ESTUDIOS_EXTRA = {
+ "Resonancia magnética cardíaca": "Con realce tardío de gadolinio (cuantificar % de fibrosis)"
+};
+
+/* ---------------- Laboratorio: ítems + plantillas ---------------- */
+const LAB_ITEMS = [
+ "Hemograma completo","Glucemia","Hemoglobina glicosilada (HbA1c)",
+ "Urea","Creatinina","Filtrado glomerular (estimado)","Ionograma (Na, K, Cl)",
+ "Colesterol total","Colesterol HDL","Colesterol LDL","Triglicéridos",
+ "Hepatograma completo (TGO, TGP, FAL, Bilirrubina, GGT)",
+ "Proteínas totales y Albúmina","Coagulograma (TP, KPTT, RIN)",
+ "TSH","T4 libre","Ácido úrico","Orina completa","Proteinuria de 24hs",
+ "PCR (proteína C reactiva)","VSG (eritrosedimentación)","Ferremia y Ferritina",
+ "Vitamina D","Vitamina B12","NT-proBNP","Troponina","Dímero D",
+ "PSA (varones)","Serología VIH, HBV, HCV (si se solicita)"
+];
+
+const LAB_PRESETS = {
+ "Rutina general": ["Hemograma completo","Glucemia","Urea","Creatinina","Ionograma (Na, K, Cl)","Colesterol total","Colesterol HDL","Colesterol LDL","Triglicéridos","Orina completa"],
+ "Perfil lipídico": ["Colesterol total","Colesterol HDL","Colesterol LDL","Triglicéridos"],
+ "Función renal": ["Urea","Creatinina","Filtrado glomerular (estimado)","Ionograma (Na, K, Cl)","Proteinuria de 24hs"],
+ "Función tiroidea": ["TSH","T4 libre"],
+ "Hepatograma": ["Hepatograma completo (TGO, TGP, FAL, Bilirrubina, GGT)","Proteínas totales y Albúmina"],
+ "Control anticoagulación": ["Coagulograma (TP, KPTT, RIN)"],
+ "Control diabetes": ["Glucemia","Hemoglobina glicosilada (HbA1c)","Función renal: Creatinina"],
+ "Pre-quirúrgico": ["Hemograma completo","Coagulograma (TP, KPTT, RIN)","Glucemia","Urea","Creatinina","Ionograma (Na, K, Cl)"]
+};
+
+/* ---------------- Estado ---------------- */
+let perfil = {nombre:"",especialidad:"",mn:"",mp:"",institucion:"",logo:""};
+let paciente = {nombre:"",dni:"",fecha:""};
+let medicamentos = [];
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function fechaLegible(iso){
+  if(!iso) return "";
+  const [y,m,d]=iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+/* ---------------- Capa de almacenamiento ----------------
+   Si la app corre dentro del entorno de Claude, usa window.storage.
+   Si se abre como archivo descargado en cualquier navegador (Safari, Chrome, etc.),
+   usa localStorage para que los datos queden guardados en ese dispositivo. */
+const store = {
+  async get(key){
+    if(window.storage){
+      try{ return await window.storage.get(key); }catch(e){ /* sigue a localStorage */ }
+    }
+    const v = localStorage.getItem(key);
+    return v ? {key, value:v} : null;
+  },
+  async set(key, value){
+    if(window.storage){
+      try{ return await window.storage.set(key, value); }catch(e){ /* sigue a localStorage */ }
+    }
+    localStorage.setItem(key, value);
+    return {key, value};
+  }
+};
+
+/* ---------------- Persistencia ---------------- */
+async function cargarDatos(){
+  try{
+    const p = await store.get('perfil-medico');
+    if(p) perfil = JSON.parse(p.value);
+  }catch(e){}
+  document.getElementById('cfg-nombre').value = perfil.nombre||"Carlos Andres Perez Peralta";
+  document.getElementById('cfg-especialidad').value = perfil.especialidad||"Médico - Especialista en Medicina Interna y Cardiología";
+  document.getElementById('cfg-mn').value = perfil.mn||"MN 173076";
+  document.getElementById('cfg-mp').value = perfil.mp||"MP 340922";
+  document.getElementById('cfg-institucion').value = perfil.institucion||"";
+  if(perfil.logo){ mostrarLogo(perfil.logo); }
+  if(perfil.firma){ mostrarFirma(perfil.firma); }
+  document.getElementById('pac-fecha').value = todayISO();
+  document.getElementById('estado-guardado').textContent = "Tus datos del consultorio quedan guardados automáticamente en este dispositivo.";
+}
+async function guardarPerfil(){
+  perfil.nombre = document.getElementById('cfg-nombre').value.trim();
+  perfil.especialidad = document.getElementById('cfg-especialidad').value.trim();
+  perfil.mn = document.getElementById('cfg-mn').value.trim();
+  perfil.mp = document.getElementById('cfg-mp').value.trim();
+  perfil.institucion = document.getElementById('cfg-institucion').value.trim();
+  try{
+    await store.set('perfil-medico', JSON.stringify(perfil));
+    toast("Datos guardados ✓");
+  }catch(e){ toast("No se pudo guardar (revisá tu conexión)"); }
+}
+function mostrarLogo(dataUrl){
+  document.getElementById('logo-preview').innerHTML = `<img src="${dataUrl}">`;
+}
+function mostrarFirma(dataUrl){
+  document.getElementById('firma-preview').innerHTML = `<img src="${dataUrl}">`;
+}
+
+/* ---------------- Inicialización de listas ---------------- */
+function initVademecum(){
+  const dl=document.getElementById('vademecum-list');
+  dl.innerHTML = VADEMECUM.map(v=>`<option value="${v}">`).join("");
+}
+function initCardio(){
+  const cont=document.getElementById('lista-cardio');
+  cont.innerHTML = ESTUDIOS_CARDIO.map((nombre,i)=>estudioItemHTML('cardio',i,nombre)).join("");
+}
+function initLab(){
+  const cont=document.getElementById('lista-lab');
+  cont.innerHTML = LAB_ITEMS.map((nombre,i)=>estudioItemHTML('lab',i,nombre)).join("");
+  const pres=document.getElementById('lab-presets');
+  pres.innerHTML = Object.keys(LAB_PRESETS).map(p=>`<button class="preset-btn" data-preset="${p}">${p}</button>`).join("");
+}
+function estudioItemHTML(grupo,i,nombre){
+  const id=`${grupo}-${i}`;
+  const extra = ESTUDIOS_EXTRA[nombre];
+  const extraHTML = extra ? `
+      <label class="lbl" style="font-size:12px;color:#888;display:none" data-extra-toggle="${id}">
+        <input type="checkbox" data-extra-check="${id}"> ${extra}
+      </label>` : "";
+  return `<div class="est-item" data-grupo="${grupo}" data-id="${id}" data-nombre="${nombre}">
+    <input type="checkbox" id="chk-${id}">
+    <div style="flex:1">
+      <label class="lbl" for="chk-${id}">${nombre}</label>
+      ${extraHTML}
+      <label class="lbl" style="font-size:12px;color:#888;display:none" data-just-toggle="${id}">
+        <input type="checkbox" data-just-check="${id}"> requiere justificación
+      </label>
+      <div class="just-box" data-just-box="${id}">
+        <textarea placeholder="Justificación clínica para este estudio..." data-just-text="${id}"></textarea>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- Eventos de estudios ---------------- */
+function bindEstudiosEvents(){
+  document.querySelectorAll('.est-item').forEach(item=>{
+    const id=item.dataset.id;
+    const chk=item.querySelector(`#chk-${id}`);
+    const justToggleLbl=item.querySelector(`[data-just-toggle="${id}"]`);
+    const justCheck=item.querySelector(`[data-just-check="${id}"]`);
+    const extraToggleLbl=item.querySelector(`[data-extra-toggle="${id}"]`);
+    chk.addEventListener('change',()=>{
+      item.classList.toggle('checked', chk.checked);
+      justToggleLbl.style.display = chk.checked ? 'block':'none';
+      if(extraToggleLbl) extraToggleLbl.style.display = chk.checked ? 'block':'none';
+      if(!chk.checked){
+        justCheck.checked=false; item.querySelector(`[data-just-box="${id}"]`).style.display='none';
+        const extraCheck=item.querySelector(`[data-extra-check="${id}"]`);
+        if(extraCheck) extraCheck.checked=false;
+      }
+    });
+    justCheck.addEventListener('change',()=>{
+      item.querySelector(`[data-just-box="${id}"]`).style.display = justCheck.checked ? 'block':'none';
+    });
+  });
+  document.querySelectorAll('.preset-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const items = LAB_PRESETS[b.dataset.preset];
+      document.querySelectorAll('#lista-lab .est-item').forEach(item=>{
+        const lbl=item.querySelector('.lbl').textContent.trim();
+        const id=item.dataset.id;
+        const chk=item.querySelector(`#chk-${id}`);
+        if(items.includes(lbl)){ chk.checked=true; chk.dispatchEvent(new Event('change')); }
+      });
+      toast(`Plantilla "${b.dataset.preset}" aplicada`);
+    });
+  });
+}
+
+/* ---------------- Medicamentos ---------------- */
+function renderMeds(){
+  const cont=document.getElementById('lista-meds');
+  if(medicamentos.length===0){ cont.innerHTML='<div class="empty">Todavía no agregaste medicamentos.</div>'; return; }
+  cont.innerHTML = medicamentos.map((m,i)=>`
+    <div class="item-row">
+      <div class="info">
+        <b>${m.nombre} — ${m.presentacion}</b>
+        <span>${m.cajas} caja(s) · ${m.posologia}</span>
+      </div>
+      <button class="btn btn-danger btn-sm" data-del="${i}">Quitar</button>
+    </div>`).join("");
+  cont.querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click',()=>{ medicamentos.splice(+b.dataset.del,1); renderMeds(); });
+  });
+}
+
+/* ---------------- Impresión ---------------- */
+function headerImpresion(){
+  const logo = perfil.logo ? `<img src="${perfil.logo}">` : "";
+  return `<div class="pr-header">
+    <div>${logo}</div>
+    <div class="pr-inst">
+      <div style="font-size:15px;font-weight:bold;color:#1d3b53">${perfil.institucion||""}</div>
+    </div>
+  </div>`;
+}
+function selloImpresion(){
+  if(perfil.firma){
+    return `<div class="pr-sello">
+      <div class="pr-sello-box" style="border-top:none">
+        <img src="${perfil.firma}" style="max-height:120px;max-width:280px">
+      </div>
+    </div>`;
+  }
+  return `<div class="pr-sello">
+    <div class="pr-sello-box">
+      <div style="font-weight:bold">${perfil.nombre||""}</div>
+      <div>${perfil.especialidad||""}</div>
+      <div>${perfil.mn||""}${perfil.mn&&perfil.mp?" — ":""}${perfil.mp||""}</div>
+    </div>
+  </div>`;
+}
+function datosPaciente(){
+  const fecha = document.getElementById('pac-fecha').value || todayISO();
+  const nombre = document.getElementById('pac-nombre').value || "________________________";
+  const dni = document.getElementById('pac-dni').value || "";
+  return `<div class="pr-fecha-pac">
+    <div><b>Paciente:</b> ${nombre} ${dni?(" — DNI: "+dni):""}</div>
+    <div><b>Fecha:</b> ${fechaLegible(fecha)}</div>
+  </div>`;
+}
+function imprimir(html){
+  document.getElementById('printArea').innerHTML = html;
+  window.print();
+}
+function textoEncabezado(titulo){
+  const fecha = document.getElementById('pac-fecha').value || todayISO();
+  const nombre = document.getElementById('pac-nombre').value || "(sin nombre)";
+  const dni = document.getElementById('pac-dni').value || "";
+  let t = `*${titulo}*\n`;
+  if(perfil.institucion) t+=`${perfil.institucion}\n`;
+  t+=`Fecha: ${fechaLegible(fecha)}\n`;
+  t+=`Paciente: ${nombre}${dni?(" — DNI: "+dni):""}\n\n`;
+  return t;
+}
+function textoFirma(){
+  return `\n—\n${perfil.nombre||""}\n${perfil.especialidad||""}\n${perfil.mn||""}${perfil.mn&&perfil.mp?" — ":""}${perfil.mp||""}`;
+}
+function generarTextoReceta(){
+  if(medicamentos.length===0) return null;
+  let t = textoEncabezado("Receta Médica");
+  medicamentos.forEach(m=>{
+    t+=`• ${m.nombre} — ${m.presentacion}\n  Cantidad: ${m.cajas} caja(s) | Posología: ${m.posologia}\n`;
+  });
+  t+=textoFirma();
+  return t;
+}
+function generarTextoEstudios(){
+  const items=obtenerItemsEstudiosTexto();
+  if(items.length===0) return null;
+  let t = textoEncabezado("Pedido de Estudios");
+  items.forEach(it=>{
+    t+=`• ${it.nombre}\n`;
+    if(it.justificacion) t+=`  Justificación: ${it.justificacion}\n`;
+  });
+  t+=textoFirma();
+  return t;
+}
+function enviarWhatsApp(texto){
+  if(!texto){ toast("No hay datos para enviar"); return; }
+  window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+}
+function enviarEmail(texto, asunto){
+  if(!texto){ toast("No hay datos para enviar"); return; }
+  window.open(`mailto:?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(texto)}`, '_blank');
+}
+function imprimirReceta(){
+  if(medicamentos.length===0){ toast("Agregá al menos un medicamento"); return; }
+  const meds = medicamentos.map(m=>`
+    <div class="pr-med">
+      <b>${m.nombre}</b> — ${m.presentacion}<br>
+      Cantidad: ${m.cajas} caja(s)<br>
+      Posología: ${m.posologia}
+    </div>`).join("");
+  const html = `
+    ${headerImpresion()}
+    <div class="pr-titulo">Receta Médica</div>
+    ${datosPaciente()}
+    ${meds}
+    ${selloImpresion()}
+  `;
+  imprimir(html);
+}
+function obtenerItemsEstudiosTexto(){
+  const items=[];
+  document.querySelectorAll('.est-item.checked').forEach(item=>{
+    const nombre=item.querySelector('.lbl').textContent.trim();
+    const id=item.dataset.id;
+    const extraCheck=item.querySelector(`[data-extra-check="${id}"]`);
+    const extraTexto = (extraCheck && extraCheck.checked) ? ` (${ESTUDIOS_EXTRA[item.dataset.nombre]})` : "";
+    const justChecked=item.querySelector(`[data-just-check="${id}"]`).checked;
+    const justText=item.querySelector(`[data-just-text="${id}"]`).value.trim();
+    items.push({nombre: nombre+extraTexto, justificacion: (justChecked && justText) ? justText : ""});
+  });
+  document.querySelectorAll('#lista-otros .item-row').forEach(row=>{
+    items.push({nombre: row.dataset.nombre, justificacion:""});
+  });
+  return items;
+}
+function imprimirEstudios(){
+  const items = obtenerItemsEstudiosTexto();
+  if(items.length===0){ toast("Marcá al menos un estudio"); return; }
+  const html = items.map(it=>`<div class="pr-est">• ${it.nombre}</div>${it.justificacion?`<div class="pr-just">Justificación: ${it.justificacion}</div>`:""}`).join("");
+  const full = `
+    ${headerImpresion()}
+    <div class="pr-titulo">Pedido de Estudios</div>
+    ${datosPaciente()}
+    ${html}
+    ${selloImpresion()}
+  `;
+  imprimir(full);
+}
+
+/* ---------------- Riesgo Quirúrgico ---------------- */
+const RCRI_FACTORES = [
+ "Cardiopatía isquémica (IAM previo, angina, prueba de isquemia positiva)",
+ "Insuficiencia cardíaca congestiva (antecedente o actual)",
+ "Enfermedad cerebrovascular (ACV o AIT previo)",
+ "Diabetes mellitus insulinodependiente",
+ "Insuficiencia renal (creatinina > 2 mg/dl o clearance < 60 ml/min)",
+ "Cirugía de alto riesgo (intraperitoneal, intratorácica o vascular suprainguinal)"
+];
+const METS_OPCIONES = [
+ {id:"mets-alta", label:"Buena capacidad funcional (≥ 4 METs: sube 2 pisos de escalera, camina rápido en plano, actividades intensas)"},
+ {id:"mets-baja", label:"Capacidad funcional limitada (< 4 METs) o no evaluable"}
+];
+const TIPOCX_OPCIONES = [
+ {id:"cx-bajo", label:"Riesgo bajo (<1%): cirugía de mama, superficial, oftalmológica, endoscópica, ambulatoria menor"},
+ {id:"cx-intermedio", label:"Riesgo intermedio (1-5%): abdominal, urológica, ortopédica mayor, cabeza y cuello, endarterectomía carotídea"},
+ {id:"cx-alto", label:"Riesgo alto (>5%): vascular aórtica/periférica mayor, cirugía prolongada con grandes pérdidas de volumen"}
+];
+const ASA_OPCIONES = [
+ {id:"asa-1", label:"ASA I — paciente sano, sin alteraciones orgánicas, fisiológicas ni psiquiátricas"},
+ {id:"asa-2", label:"ASA II — enfermedad sistémica leve, sin limitación funcional (ej: HTA controlada, tabaquismo, obesidad leve)"},
+ {id:"asa-3", label:"ASA III — enfermedad sistémica grave con limitación funcional (ej: IC compensada, EPOC, diabetes con complicaciones)"},
+ {id:"asa-4", label:"ASA IV — enfermedad sistémica grave que constituye amenaza constante para la vida"},
+ {id:"asa-5", label:"ASA V — paciente moribundo, no se espera que sobreviva sin la cirugía"},
+ {id:"asa-6", label:"ASA VI — paciente con muerte cerebral, donante de órganos"}
+];
+
+function initRiesgoListas(){
+  document.getElementById('lista-rcri').innerHTML = RCRI_FACTORES.map((f,i)=>`
+    <div class="est-item">
+      <input type="checkbox" id="rcri-${i}" data-rcri>
+      <label class="lbl" for="rcri-${i}">${f}</label>
+    </div>`).join("");
+
+  document.getElementById('lista-mets').innerHTML = METS_OPCIONES.map(o=>`
+    <div class="est-item">
+      <input type="radio" name="mets" id="${o.id}" value="${o.id}">
+      <label class="lbl" for="${o.id}">${o.label}</label>
+    </div>`).join("");
+
+  document.getElementById('lista-tipocx').innerHTML = TIPOCX_OPCIONES.map(o=>`
+    <div class="est-item">
+      <input type="radio" name="tipocx" id="${o.id}" value="${o.id}">
+      <label class="lbl" for="${o.id}">${o.label}</label>
+    </div>`).join("");
+
+  document.getElementById('lista-asa').innerHTML = ASA_OPCIONES.map(o=>`
+    <div class="est-item">
+      <input type="radio" name="asa" id="${o.id}" value="${o.id}">
+      <label class="lbl" for="${o.id}">${o.label}</label>
+    </div>`).join("");
+}
+
+const RCRI_RIESGO = {0:"~3,9%", 1:"~6,0%", 2:"~10,1%"}; // ≥3 → ~15%
+
+function calcularRiesgo(){
+  const factoresMarcados = [...document.querySelectorAll('[data-rcri]:checked')];
+  const score = factoresMarcados.length;
+  const riesgoPct = score>=3 ? "~15% o más" : RCRI_RIESGO[score];
+  const claseRCRI = score===0?"Clase I":score===1?"Clase II":score===2?"Clase III":"Clase IV";
+
+  const metsEl = document.querySelector('input[name=mets]:checked');
+  const tipocxEl = document.querySelector('input[name=tipocx]:checked');
+  const asaEl = document.querySelector('input[name=asa]:checked');
+
+  if(!tipocxEl || !asaEl){
+    toast("Seleccioná el tipo de cirugía y la clase ASA");
+    return null;
+  }
+  const buenaCapacidad = metsEl && metsEl.value==="mets-alta";
+  const tipocx = tipocxEl.value;
+  const asaLabel = ASA_OPCIONES.find(o=>o.id===asaEl.value).label;
+
+  let recomendacion = "";
+  if(tipocx==="cx-bajo"){
+    recomendacion = "Cirugía de bajo riesgo intrínseco: se puede proceder sin estudios cardíacos adicionales, independientemente del RCRI.";
+  } else if(buenaCapacidad){
+    recomendacion = "Buena capacidad funcional (≥4 METs): se puede proceder con la cirugía sin estudios cardíacos adicionales, según algoritmo ESC/ESA 2022 y ACC/AHA 2014.";
+  } else if(score===0){
+    recomendacion = "Capacidad funcional limitada o no evaluable, pero sin factores de riesgo (RCRI 0): bajo riesgo de evento cardíaco. Proceder con la cirugía; considerar optimización clínica habitual.";
+  } else if(score>=1 && tipocx==="cx-intermedio"){
+    recomendacion = "Capacidad funcional limitada + cirugía de riesgo intermedio + factores RCRI presentes: considerar biomarcadores (NT-proBNP/troponina) y evaluación cardiológica antes de la cirugía. Discutir con el equipo quirúrgico según urgencia.";
+  } else if(score>=1 && tipocx==="cx-alto"){
+    recomendacion = "Capacidad funcional limitada + cirugía de alto riesgo + factores RCRI presentes: se recomienda evaluación cardiológica preoperatoria con biomarcadores y considerar estudios funcionales (ecoestrés/eco-dobutamina) antes de definir conducta, salvo cirugía de urgencia.";
+  } else {
+    recomendacion = "Evaluar en conjunto con cardiología antes de la cirugía programada.";
+  }
+
+  return {score, riesgoPct, claseRCRI, asaLabel, tipocxLabel: TIPOCX_OPCIONES.find(o=>o.id===tipocx).label, buenaCapacidad, recomendacion, factoresMarcados: factoresMarcados.map(f=>f.nextElementSibling.textContent)};
+}
+
+function mostrarResultadoRiesgo(r){
+  const cont=document.getElementById('resultado-contenido');
+  cont.innerHTML = `
+    <p><b>RCRI (Índice de Riesgo Cardíaco Revisado de Lee):</b> ${r.score} punto(s) — ${r.claseRCRI} — riesgo estimado de evento cardíaco mayor: <b>${r.riesgoPct}</b></p>
+    <p><b>Tipo de cirugía:</b> ${r.tipocxLabel}</p>
+    <p><b>Capacidad funcional:</b> ${r.buenaCapacidad ? "≥ 4 METs (buena)" : "< 4 METs o no evaluable"}</p>
+    <p><b>Clasificación ASA:</b> ${r.asaLabel}</p>
+    <p><b>Recomendación orientativa:</b> ${r.recomendacion}</p>
+  `;
+  document.getElementById('resultado-riesgo').style.display='block';
+}
+
+function generarTextoRiesgo(r){
+  const fecha = document.getElementById('rq-fecha').value || todayISO();
+  const nombre = document.getElementById('rq-nombre').value || "(sin nombre)";
+  const dni = document.getElementById('rq-dni').value || "";
+  const cirugia = document.getElementById('rq-cirugia').value || "";
+  let t = `*Evaluación de Riesgo Quirúrgico*\n`;
+  if(perfil.institucion) t+=`${perfil.institucion}\n`;
+  t+=`Fecha: ${fechaLegible(fecha)}\n`;
+  t+=`Paciente: ${nombre}${dni?(" — DNI: "+dni):""}\n`;
+  t+=`Cirugía/procedimiento: ${cirugia}\n\n`;
+  t+=`Antecedentes cardiovasculares (RCRI): ${r.factoresMarcados.length? r.factoresMarcados.join("; ") : "ninguno marcado"}\n`;
+  t+=`Otros antecedentes: ${document.getElementById('rq-otros-antecedentes').value||"-"}\n`;
+  t+=`Medicación habitual: ${document.getElementById('rq-medicacion').value||"-"}\n`;
+  t+=`Alergias: ${document.getElementById('rq-alergias').value||"-"}\n`;
+  t+=`ECG (${fechaLegible(document.getElementById('rq-ecg-fecha').value)}): ${document.getElementById('rq-ecg-hallazgos').value||"-"}\n`;
+  t+=`Estudios complementarios: ${document.getElementById('rq-estudios-compl').value||"-"}\n\n`;
+  t+=`RCRI: ${r.score} punto(s) — ${r.claseRCRI} — riesgo estimado: ${r.riesgoPct}\n`;
+  t+=`Tipo de cirugía: ${r.tipocxLabel}\n`;
+  t+=`Capacidad funcional: ${r.buenaCapacidad ? "≥4 METs" : "<4 METs / no evaluable"}\n`;
+  t+=`ASA: ${r.asaLabel}\n\n`;
+  t+=`Recomendación: ${r.recomendacion}\n`;
+  t+=textoFirma();
+  return t;
+}
+function imprimirRiesgo(r){
+  const fecha = document.getElementById('rq-fecha').value || todayISO();
+  const nombre = document.getElementById('rq-nombre').value || "________________________";
+  const dni = document.getElementById('rq-dni').value || "";
+  const cirugia = document.getElementById('rq-cirugia').value || "";
+  const html = `
+    ${headerImpresion()}
+    <div class="pr-titulo">Evaluación de Riesgo Quirúrgico</div>
+    <div class="pr-fecha-pac"><div><b>Paciente:</b> ${nombre} ${dni?(" — DNI: "+dni):""}</div><div><b>Fecha:</b> ${fechaLegible(fecha)}</div></div>
+    <div class="pr-est"><b>Cirugía/procedimiento:</b> ${cirugia}</div>
+    <div class="pr-est"><b>Antecedentes cardiovasculares:</b> ${r.factoresMarcados.length? r.factoresMarcados.join("; ") : "ninguno marcado"}</div>
+    <div class="pr-est"><b>Otros antecedentes:</b> ${document.getElementById('rq-otros-antecedentes').value||"-"}</div>
+    <div class="pr-est"><b>Medicación habitual:</b> ${document.getElementById('rq-medicacion').value||"-"}</div>
+    <div class="pr-est"><b>Alergias:</b> ${document.getElementById('rq-alergias').value||"-"}</div>
+    <div class="pr-est"><b>ECG (${fechaLegible(document.getElementById('rq-ecg-fecha').value)}):</b> ${document.getElementById('rq-ecg-hallazgos').value||"-"}</div>
+    <div class="pr-est"><b>Estudios complementarios:</b> ${document.getElementById('rq-estudios-compl').value||"-"}</div>
+    <div class="pr-est" style="margin-top:14px"><b>RCRI:</b> ${r.score} punto(s) — ${r.claseRCRI} — riesgo estimado: ${r.riesgoPct}</div>
+    <div class="pr-est"><b>Tipo de cirugía:</b> ${r.tipocxLabel}</div>
+    <div class="pr-est"><b>Capacidad funcional:</b> ${r.buenaCapacidad ? "≥4 METs" : "<4 METs / no evaluable"}</div>
+    <div class="pr-est"><b>ASA:</b> ${r.asaLabel}</div>
+    <div class="pr-est" style="margin-top:10px"><b>Recomendación:</b> ${r.recomendacion}</div>
+    ${selloImpresion()}
+  `;
+  imprimir(html);
+}
+let ultimoResultadoRiesgo = null;
+
+function generarInformeColega(r){
+  const fecha = document.getElementById('rq-fecha').value || todayISO();
+  const nombre = document.getElementById('rq-nombre').value || "(sin nombre)";
+  const dni = document.getElementById('rq-dni').value || "";
+  const cirugia = document.getElementById('rq-cirugia').value || "el procedimiento programado";
+  const otrosAnt = document.getElementById('rq-otros-antecedentes').value.trim();
+  const medicacion = document.getElementById('rq-medicacion').value.trim();
+  const alergias = document.getElementById('rq-alergias').value.trim();
+  const ecgFecha = document.getElementById('rq-ecg-fecha').value;
+  const ecgHallazgos = document.getElementById('rq-ecg-hallazgos').value.trim();
+  const estudiosCompl = document.getElementById('rq-estudios-compl').value.trim();
+
+  let p = `Estimado/a colega:\n\n`;
+  p += `Le presento la evaluación de riesgo cardiovascular preoperatorio del paciente ${nombre}${dni?(" (DNI "+dni+")"):""}, evaluado el ${fechaLegible(fecha)}, programado para ${cirugia}.\n\n`;
+
+  p += `Antecedentes cardiovasculares relevantes: `;
+  p += r.factoresMarcados.length ? r.factoresMarcados.join("; ")+"." : "no presenta antecedentes cardiovasculares relevantes para el índice de Lee.";
+  p += `\n`;
+  if(otrosAnt) p += `Otros antecedentes: ${otrosAnt}.\n`;
+  if(medicacion) p += `Medicación habitual: ${medicacion}.\n`;
+  p += `Alergias: ${alergias||"no refiere"}.\n\n`;
+
+  p += `En el ECG${ecgFecha?(" del "+fechaLegible(ecgFecha)):""} se observa: ${ecgHallazgos||"sin datos registrados"}.\n`;
+  if(estudiosCompl) p += `Estudios complementarios disponibles: ${estudiosCompl}.\n`;
+  p += `\n`;
+
+  p += `El paciente presenta un Índice de Riesgo Cardíaco Revisado (RCRI, Lee et al.) de ${r.score} punto(s) (${r.claseRCRI}), con un riesgo estimado de evento cardíaco mayor perioperatorio del ${r.riesgoPct}. `;
+  p += `La capacidad funcional es ${r.buenaCapacidad ? "buena (≥4 METs)" : "limitada (<4 METs) o no pudo ser evaluada adecuadamente"}. `;
+  p += `Se clasifica al procedimiento como de ${r.tipocxLabel.toLowerCase()}. `;
+  p += `Clasificación ASA: ${r.asaLabel}.\n\n`;
+
+  p += `Conducta sugerida: ${r.recomendacion}\n\n`;
+  p += `Quedo a disposición para ampliar la evaluación o coordinar estudios adicionales si lo considera necesario.\n\n`;
+  p += `Saludos cordiales.\n`;
+  p += textoFirma();
+  return p;
+}
+
+/* ---------------- Otros estudios (libres) ---------------- */
+function asegurarListaOtros(){
+  if(!document.getElementById('lista-otros')){
+    const div=document.createElement('div');
+    div.id='lista-otros';
+    document.getElementById('tab-estudios').querySelector('.card:nth-child(3)').appendChild(div);
+  }
+}
+
+/* ---------------- Tabs ---------------- */
+document.querySelectorAll('nav button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------------- Listeners principales ---------------- */
+document.getElementById('btn-guardar-config').addEventListener('click', guardarPerfil);
+
+document.getElementById('cfg-logo-input').addEventListener('change', (e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async ()=>{
+    perfil.logo = reader.result;
+    mostrarLogo(perfil.logo);
+    try{ await store.set('perfil-medico', JSON.stringify(perfil)); toast("Logo guardado ✓"); }catch(err){}
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('cfg-firma-input').addEventListener('change', (e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async ()=>{
+    perfil.firma = reader.result;
+    mostrarFirma(perfil.firma);
+    try{ await store.set('perfil-medico', JSON.stringify(perfil)); toast("Firma y sello guardados ✓"); }catch(err){}
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('btn-add-med').addEventListener('click', ()=>{
+  const nombre=document.getElementById('med-nombre').value.trim();
+  const presentacion=document.getElementById('med-presentacion').value.trim();
+  const cajas=document.getElementById('med-cajas').value||"1";
+  const posologia=document.getElementById('med-posologia').value.trim();
+  if(!nombre){ toast("Ingresá el nombre del medicamento"); return; }
+  medicamentos.push({nombre,presentacion:presentacion||"-",cajas,posologia:posologia||"-"});
+  renderMeds();
+  document.getElementById('med-nombre').value="";
+  document.getElementById('med-presentacion').value="";
+  document.getElementById('med-cajas').value="1";
+  document.getElementById('med-posologia').value="";
+  document.getElementById('med-nombre').focus();
+});
+document.getElementById('btn-clear-meds').addEventListener('click', ()=>{ medicamentos=[]; renderMeds(); });
+document.getElementById('btn-print-receta').addEventListener('click', imprimirReceta);
+
+document.getElementById('btn-add-otro').addEventListener('click', ()=>{
+  asegurarListaOtros();
+  const input=document.getElementById('otro-estudio-nombre');
+  const nombre=input.value.trim();
+  if(!nombre) return;
+  const cont=document.getElementById('lista-otros');
+  const row=document.createElement('div');
+  row.className='item-row';
+  row.dataset.nombre=nombre;
+  row.innerHTML=`<div class="info"><b>${nombre}</b></div><button class="btn btn-danger btn-sm">Quitar</button>`;
+  row.querySelector('button').addEventListener('click',()=>row.remove());
+  cont.appendChild(row);
+  input.value="";
+});
+document.getElementById('btn-clear-estudios').addEventListener('click', ()=>{
+  document.querySelectorAll('.est-item input[type=checkbox]').forEach(c=>{c.checked=false; c.dispatchEvent(new Event('change'));});
+  const otros=document.getElementById('lista-otros'); if(otros) otros.innerHTML="";
+});
+document.getElementById('btn-print-estudios').addEventListener('click', imprimirEstudios);
+document.getElementById('btn-wsp-receta').addEventListener('click', ()=>enviarWhatsApp(generarTextoReceta()));
+document.getElementById('btn-mail-receta').addEventListener('click', ()=>enviarEmail(generarTextoReceta(), "Receta médica"));
+document.getElementById('btn-wsp-estudios').addEventListener('click', ()=>enviarWhatsApp(generarTextoEstudios()));
+document.getElementById('btn-mail-estudios').addEventListener('click', ()=>enviarEmail(generarTextoEstudios(), "Pedido de estudios"));
+
+document.getElementById('btn-calcular-riesgo').addEventListener('click', ()=>{
+  const r = calcularRiesgo();
+  if(!r) return;
+  ultimoResultadoRiesgo = r;
+  mostrarResultadoRiesgo(r);
+  document.getElementById('informe-colega-texto').value = generarInformeColega(r);
+  document.getElementById('informe-colega').style.display='block';
+});
+document.getElementById('btn-print-riesgo').addEventListener('click', ()=>{
+  if(ultimoResultadoRiesgo) imprimirRiesgo(ultimoResultadoRiesgo);
+});
+document.getElementById('btn-wsp-riesgo').addEventListener('click', ()=>{
+  if(ultimoResultadoRiesgo) enviarWhatsApp(generarTextoRiesgo(ultimoResultadoRiesgo));
+});
+document.getElementById('btn-mail-riesgo').addEventListener('click', ()=>{
+  if(ultimoResultadoRiesgo) enviarEmail(generarTextoRiesgo(ultimoResultadoRiesgo), "Evaluación de riesgo quirúrgico");
+});
+document.getElementById('btn-wsp-informe').addEventListener('click', ()=>{
+  enviarWhatsApp(document.getElementById('informe-colega-texto').value);
+});
+document.getElementById('btn-mail-informe').addEventListener('click', ()=>{
+  enviarEmail(document.getElementById('informe-colega-texto').value, "Interconsulta — Riesgo quirúrgico");
+});
+document.getElementById('btn-print-informe').addEventListener('click', ()=>{
+  const texto = document.getElementById('informe-colega-texto').value;
+  const html = `
+    ${headerImpresion()}
+    <div class="pr-titulo">Informe de Interconsulta — Riesgo Quirúrgico</div>
+    <div class="pr-est" style="white-space:pre-wrap">${texto}</div>
+  `;
+  imprimir(html);
+});
+
+/* ---------------- Arranque ---------------- */
+initVademecum();
+initCardio();
+initLab();
+bindEstudiosEvents();
+initRiesgoListas();
+asegurarListaOtros();
+cargarDatos();
+document.getElementById('rq-fecha').value = todayISO();
+</script>
+</body>
+</html>
